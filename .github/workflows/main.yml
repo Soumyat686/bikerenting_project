@@ -1,0 +1,50 @@
+name: myapp
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          make install
+      - name: Lint with pylint
+        run: |
+          make lint
+      - name: test with pytest
+        run: |
+          make test
+      - name: Format code with Black
+        run: |
+          make format
+      - name: Run Python script
+        run: python bikeshare_model/train_pipeline.py.py    
+      - name: Run tests with pytest
+        run: |
+          pytest tests/  
+      - name: Build Python package
+        run: |
+          python -m build    
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/myapp:latest
