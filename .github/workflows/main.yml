@@ -86,18 +86,18 @@ jobs:
     - name: Login to Docker hub
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKER_USER_NAME }}
+        username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
       
 
     - name: Build the Docker image for Fastapi app
       env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER_NAME }}
+        DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
       run: docker build . -f Dockerfile -t $DOCKER_USER/bikerenting-fastapi:latest
 
     - name: Push the Docker Image
       env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER_NAME }}
+        DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
       run: docker push $DOCKER_USER/bikerenting-fastapi
 
     - name: Logout to Docker hub
